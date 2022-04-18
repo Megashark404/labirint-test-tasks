@@ -1,0 +1,1 @@
+# labirint-test-tasks
