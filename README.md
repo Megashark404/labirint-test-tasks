@@ -14,7 +14,9 @@ Html-страница по нажатию кнопки отправляет AJAX
 Реализовано на фреймворке Laravel.
 
 Модель News находится в app\Models.
+
 Контроллер NewsController находится в app\Http\Controllers.
+
 Виды находятся в resources\views.
 
 
