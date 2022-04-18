@@ -1,0 +1,131 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+	  	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="style.css">
+	  	<title>Тестовое задание № 1</title> 
+
+	</head>
+	<body>
+		<div class="container mt-5">
+			<div class="row mb-5"><h2>Тестовое задание № 1</h2></div>
+			<div class="row">
+
+				<div class="col">
+					<div class="weather">
+						<div>Москва <span id="date">03.09</span></div>
+						<div id="temperature">Температура <span></span></div>
+						<div id="feels_like">Ощущается как <span></span></div>
+						<div id="description">Солнечно</div>
+					</div>
+				</div>
+				<div class="col">
+					<div class="refresh"><a onclick="event.preventDefault()" id="refresh"><img src="refresh.png" alt=""></a></div>
+				</div>
+				
+			</div>
+			<div class="row mt-5">
+				<div class="col">
+					<div class="currency" id="usd">
+						<p>1 USD = <span>30,94</span> RUB</p>
+						<p>Доллар США</p>
+					</div>
+				</div>
+				<div class="col">
+					<div class="currency" id="eur">
+						<p>1 USD = <span>30,94</span> RUB</p>
+						<p>Евро</p>
+					</div>
+				</div>
+				<div class="col">
+					<div class="currency" id="sek">
+						<p>1 USD = <span>30,94</span> RUB</p>
+						<p>Шведская крона</p>
+					</div>
+				</div>
+				<div class="col">
+					<div class="currency" id="jpy">
+						<p>1 USD = <span>30,94</span> RUB</p>
+						<p>Японская иена</p>
+					</div>
+				</div>
+				<div class="col">
+					<div class="currency" id="cad">
+						<p>1 USD = <span>30,94</span> RUB</p>
+						<p>Канадский доллар</p>
+					</div>
+				</div>
+			</div>
+			<div class="row text-right mt-4">
+				<div class="col w-100" id="updated_at">Обновлено: <br> <span></span></div>
+			</div>
+		</div>
+
+
+
+
+
+
+
+<script>
+
+	// получаем информацию при первом запуске. Далее - по кнопке "обновить"
+	refresh();
+
+	// Вешаем на кнопку обновления соответствующую функцию
+	var refreshButton = document.querySelector('#refresh');	
+	refreshButton.addEventListener('click', refresh);	
+
+	// выводим текущую дату
+	let now = new Date();
+	let currentDay = now.getDate();
+	let currentMonth = now.getMonth() + 1;
+	let currentDate = currentDay + '.' + currentMonth;
+	document.querySelector("#date").innerHTML = currentDate;
+
+	//console.log(currentDate);
+
+
+	function refresh () {
+
+		// посылаем запрос
+		let xhr = new XMLHttpRequest();	
+		xhr.open("GET", 'task1back.php', false);	 
+		xhr.send();
+		 
+		if (xhr.status == 200) {
+			let response = xhr.responseText;
+			let result = JSON.parse(xhr.response);
+
+			// заполняем данные о погоде
+			document.querySelector("#temperature span").innerHTML = result.weather.temp;
+			document.querySelector("#feels_like span").innerHTML = result.weather.feels_like;
+			document.querySelector("#description").innerHTML = result.weather.description;
+			
+			// заполняем данные о валюте
+			document.querySelector("#usd span").innerHTML = result.currency['USD'].value;
+			document.querySelector("#eur span").innerHTML = result.currency['EUR'].value;
+			document.querySelector("#sek span").innerHTML = result.currency['SEK'].value;
+			document.querySelector("#jpy span").innerHTML = result.currency['JPY'].value;
+			document.querySelector("#cad span").innerHTML = result.currency['CAD'].value;
+
+			// выводим информацию о времени обновления
+			let now = new Date(); 
+			let updatedAt = now.toString();
+			document.querySelector("#updated_at span").innerHTML = updatedAt;
+		}	
+
+	}	
+
+</script>
+		
+
+
+
+
+
+
+
+	</body>
+</html>

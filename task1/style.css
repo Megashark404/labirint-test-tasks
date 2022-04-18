@@ -1,0 +1,16 @@
+div.weather, div.currency, div.refresh {
+	background-color:#dac0ae;
+	border-radius: 15px;
+	padding: 15px;
+}
+
+div.refresh {
+	width:100px;
+	height: 100px;
+	text-align: center;
+	float:right;
+}
+
+a {
+	cursor: pointer;
+}
