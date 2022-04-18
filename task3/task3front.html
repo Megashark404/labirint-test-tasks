@@ -1,0 +1,186 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+	  	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="style.css">
+	  	<title>Тестовое задание № 3</title> 
+
+	</head>
+	<body>
+		<div class="container mt-5">
+			<h3 class="mb-5">Тестовое задание № 3</h3>
+			<div class="row">
+				<div class="col">
+					<div id="field"></div>
+				</div>	
+			</div>
+			<div class="row">
+				<div class="col mt-3">
+					<div id="iteration">Итерация №: <span>0</span></div>
+					<div id="message"></div>
+				</div>
+			</div>
+		</div>
+
+
+
+<script>
+	var output = '';	
+	var field;
+
+	// Задаем размеры поля
+	var m = 3;
+	var n = 3;
+
+	// генерируем случайное поле
+	field = getRandomField(m,n);
+
+	// выводим начальное состояние поля
+	printField(field);	
+	console.log('initial field ' + field);
+
+
+	var iteration = 1;
+	var output = '';	
+
+	// с помощью setInterval обновляем на экране состояние поля каждые 1000 миллисекунд
+	var showField = setInterval(function () {
+
+		// запрашиваем следующее состояние поля	
+		nextField = getNextField(field);
+
+		/// выяснилось, что при достижении определенных условий количество активных клеток на поле не меняется. Например, если на участке поля образуется квадрат 2*2 из активных клеток, три активных соседа позволяет клетке из такого квадрата оставаться всегда активной в результате чего состояние поля не меняется. Из-за этого цикл никогда не завершается. 
+		// Поэтому в каждой итерации будем отслеживать, поменялось ли состояние поля. Если состояние поля не меняется, прерываем цикл
+		if (arraysEqual(field, nextField)) {
+ 			clearInterval(showField);
+ 			document.querySelector("#message").innerHTML = 'Возникла патовая ситуация. На поле остались активные клетки, но их состояние не может поменяться. Завершаем цикл';
+ 		}
+
+		// выводим следующее состояние поля	
+		printField(nextField);
+
+		// выводим номер итерации цикла
+	 	document.querySelector("#iteration span").innerHTML = iteration;	
+	 	console.log('iter #'+  iteration + ' field :  ' + field); 	
+ 		iteration++;
+ 
+ 		// проверяем, остались ли активные клетки. если нет - останавливаем цикл
+ 		if (checkActiveCells(field) == 0) {
+ 			clearInterval(showField);
+ 			document.querySelector("#message").innerHTML = 'На поле не осталось активных клеток. Завершаем цикл';
+ 		};
+
+ 		field = nextField.slice(0);
+ 
+ 		// добавляем еще одну проверку на зацикливание на всякий случай
+ 		if (iteration > 500) {
+ 			clearInterval(showField);
+ 			document.querySelector("#message").innerHTML = 'Возник бесконечный цикл. Завершаем цикл';
+ 		}
+
+
+	}, 1000);
+
+
+
+
+
+
+
+
+	// функция печати поля	
+	function printField(field) {
+		let output = '';
+
+		output = output + '<table>';
+
+		for (let i = 0; i < m; i++) {
+			output = output + '<tr>';
+			for (let j = 0; j < n; j++) {
+				output = output + '<td>' + field[i][j] + '</td>';
+			}
+			output = output +'</tr>';
+	 	}
+	 	output = output + '</table>';
+
+	 	document.querySelector("#field").innerHTML = output;
+	}
+
+
+	
+	// функция получения рандомного поля. Поле генерирует php скрипт
+	function getRandomField(m,n) {
+		// создаем запрос к php скрипту
+		let xhr = new XMLHttpRequest();	
+		xhr.open("post", 'task3random.php', false);					
+		xhr.setRequestHeader("Accept", "application/json");
+		xhr.setRequestHeader("Content-Type", "application/json"); 
+
+		// передаем размеры поля
+		const json = {'m' : m, 'n': n};
+
+		xhr.send(JSON.stringify(json));
+		 
+		if (xhr.status == 200) {
+			let response = xhr.responseText;
+			console.log('response: ' + xhr.response);
+			let result = JSON.parse(xhr.response);			
+			
+			return result;
+		}	
+	}
+
+	// функция получения следующего состояния поля. Состояние генерирует php скрипт
+	function getNextField (field) {
+
+		// создаем запрос
+		let xhr = new XMLHttpRequest();	
+		xhr.open("post", 'task3back.php', false);					
+		xhr.setRequestHeader("Accept", "application/json");
+		xhr.setRequestHeader("Content-Type", "application/json"); 
+
+		// передаем текущее состояние поля
+		xhr.send(JSON.stringify(field));
+		 
+		if (xhr.status == 200) {
+			let response = xhr.responseText;
+			console.log('response: ' + xhr.response);
+			let result = JSON.parse(xhr.response);
+			
+			return result;
+		}	
+	}	
+
+	// функция, проверяющая, остались ли на поле активные клетки
+	function checkActiveCells($field) {
+		for (let i = 0; i < m; i++) {		
+			for (let j = 0; j < n; j++) {
+				if (field[i][j] == 1) {
+					return true;
+				}
+			}	
+ 		}
+ 		return false;
+	}
+
+	// функция сравнения двух массивов
+	function arraysEqual(arr1, arr2) {
+		if(arr1.length !== arr2.length)
+			return false;
+		for(var i = arr1.length; i--;) {
+			for (var j=arr1[0].length; j--;) {
+				if(arr1[i][j] !== arr2[i][j])
+		 		return false;
+			}
+		}
+		return true;
+	}
+
+
+
+</script>
+		
+
+</body>
+</html>
